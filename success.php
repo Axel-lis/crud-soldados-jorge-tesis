@@ -1,3 +1,15 @@
+<?php
+// Iniciar sesión en PHP
+session_start();
+
+// Verificar si existe un mensaje de éxito en la sesión
+if (!isset($_SESSION['success_message'])) {
+    // Si no hay mensaje de éxito, redirigir a la página de registro o inicio
+    header("Location: login.php");
+    exit();
+}
+?>
+
 <!DOCTYPE html>
 <html lang="es">
 
@@ -5,7 +17,7 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta http-equiv="X-UA-Compatible" content="ie=edge" />
-    <title>Tesis Jorge</title>
+    <title>Registro Exitoso</title>
     <link rel="apple-touch-icon" sizes="180x180" href="./favicon/apple-touch-icon.png" />
     <link rel="icon" type="image/png" sizes="32x32" href="./favicon/favicon-32x32.png" />
     <link rel="icon" type="image/png" sizes="16x16" href="./favicon/favicon-16x16.png" />
@@ -16,75 +28,46 @@
     <!-- Bootstrap CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" />
 
-    <!-- DataTables CSS -->
-    <link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/dataTables.bootstrap5.min.css" />
-
     <!-- jQuery -->
     <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
 
     <!-- Bootstrap JS -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
 
-    <!-- DataTables JS -->
-    <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
-    <script src="https://cdn.datatables.net/1.13.6/js/dataTables.bootstrap5.min.js"></script>
     <!--css-->
     <link rel="stylesheet" href="./estilos/index.css" />
 </head>
 
 <body class="fondo-con-opacidad">
-    <div class="container">
+    <div class="container mt-5">
         <div class="row justify-content-center">
-            <div class="col-md-4">
-                <h3 class="text-center">
-                    <strong class="text-dark text-underline"> Iniciar Sesión</strong> <br />Sistema de Control de
-                    Soldados
-                </h3>
-                <div class="alert alert-danger">Identifiquese como administrador para acceder</div>
-                <form method="POST" action="login.php">
-                    <div class="mb-3">
-                        <label for="username" class="form-label">Usuario</label>
-                        <input type="text" name="username" class="form-control" required />
+            <div class="col-md-6">
+                <div class="card">
+                    <div class="card-header text-center">
+                        <h2>Registro Exitoso</h2>
                     </div>
-                    <div class="mb-3">
-                        <label for="password" class="form-label">Contraseña</label>
-                        <input type="password" name="password" class="form-control" required />
+                    <div class="card-body text-center">
+                        <p class="lead">
+                            <?php
+                            // Mostrar el mensaje de éxito
+                            echo $_SESSION['success_message'];
+                            // Eliminar el mensaje de éxito de la sesión
+                            unset($_SESSION['success_message']);
+                            ?>
+                        </p>
+                        <a href="index.php" class="btn btn-primary mt-3">Volver al inicio</a>
                     </div>
-                    <button type="submit" class="btn btn-primary w-100">Iniciar Sesión</button>
-                    <button type="button" class="btn btn-secondary w-100 mt-3" id="btnRegistrar">Registrar
-                        Soldado</button>
-                </form>
-            </div>
-        </div>
-    </div>
-    <!-- Modal de Error -->
-    <div class="modal fade" id="errorModal" tabindex="-1" aria-labelledby="errorModalLabel" aria-hidden="true">
-        <div class="modal-dialog">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title text-danger" id="errorModalLabel">Error</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                </div>
-                <div class="modal-body">
-                    <span id="errorMessage" class="text-danger">Contraseña incorrecta: Solo administradores tienen
-                        acceso</span>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
                 </div>
             </div>
         </div>
     </div>
-    <script>
-    $(document).ready(function() {
-        <?php if (isset($error_message)): ?>
-        $('#errorMessage').text("<?php echo $error_message; ?>");
-        $('#errorModal').modal('show');
-        <?php endif; ?>
-    });
-    $('#btnRegistrar').on('click', function() {
-        window.location.href = 'registrar.php';
-    });
-    </script>
 
+    <!-- Estilos personalizados -->
+    <style>
+    .fondo-con-opacidad {
+        background: rgba(0, 0, 0, 0.1);
+    }
+    </style>
 </body>
+
+</html>
