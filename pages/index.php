@@ -92,6 +92,7 @@ endif; // Cerrar el bloque if del rol usuario
     <div class="container mt-5 pt-2">
         <h1 class="text-center fw-bold text-white">S.C.S</h1>
         <h1 class="text-center fw-bold text-white mb-4">SISTEMA DE CONTROL DE SOLDADOS</h1>
+        <h5 id="xyz" class="text-center text-bold mt-2"></h5>
         <label for="selectDivision">Seleccione la división</label>
         <select name="division" id="selectDivision">
             <option value="">--TODOS LOS SOLDADOS--</option>
@@ -229,6 +230,7 @@ endif; // Cerrar el bloque if del rol usuario
             '<?php echo htmlspecialchars($rol, ENT_QUOTES, 'UTF-8'); ?>'; // Obtén el rol del usuario desde PHP
         iniciarDataTable(rol);
         console.log('Rol:', rol);
+        $('#xyz').text('División:' + '<?php echo $divisionNombre; ?>');
     });
     </script>
     <script src="../js/inicio.js?v=<?php echo time(); ?>"></script>
