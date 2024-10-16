@@ -25,8 +25,8 @@ function iniciarDataTable(rol) {
       { data: 'apellido_nombre', title: 'APELLIDO Y NOMBRE' },
       { data: 'grado', title: 'GRADO' },
       { data: 'dni', title: 'DNI' },
-      { data: 'fecha', title: 'FECHA' },
-      { data: 'antiguedad', title: 'ANTIGÜEDAD' },
+      { data: 'fecha', title: 'NACIMIENTO' },
+      { data: 'antiguedad', title: 'INGRESO' },
       { data: 'observaciones', title: 'OBSERVACIONES' },
       { data: 'division', title: 'DIVISIÓN' },
       {
@@ -147,10 +147,10 @@ $('#btnEditar').on('click', function () {
     grado: $('#grado').val(),
     dni: $('#dni').val(),
     // No incluir fecha y antigüedad en la actualización
-    division: $('#selectDivision').val(),
+    division: $('#modalEditar #selectDivision').val(),
     observaciones: $('#observaciones').val(),
-    // Aquí puedes agregar campos adicionales si es necesario
   };
+  console.log(data.division);
   console.log('Datos enviados:', data); // Verifica los datos enviados
 
   // Enviar la solicitud AJAX al archivo PHP

@@ -128,7 +128,7 @@ endif; // Cerrar el bloque if del rol usuario
                     <h5 class="modal-title text-dark" id="modalEditarLabel">Editar Registro</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
-                <div class="modal-body">
+                <div class="modal-body" id="modalEditar">
                     <!-- Formulario para editar -->
                     <form id="formEditar">
                         <div class="row">
@@ -140,8 +140,12 @@ endif; // Cerrar el bloque if del rol usuario
 
                             <!-- Grado -->
                             <div class="col-md-6 mb-3">
-                                <label for="grado" class="form-label">Grado</label>
-                                <input type="text" class="form-control" id="grado" name="grado" />
+                                <label for="selectGrado" class="form-label">Grado</label>
+                                <select name="grado" id="grado" class="form-control" required>
+                                    <option value="soldado_2da_comision">Soldado de 2da en comisión</option>
+                                    <option value="soldado_2da">Soldado de 2da</option>
+                                    <option value="soldado_1ra">Soldado de 1ra</option>
+                                </select>
                             </div>
                         </div>
 
@@ -154,7 +158,7 @@ endif; // Cerrar el bloque if del rol usuario
 
                             <!-- Fecha de nacimiento -->
                             <div class="col-md-5 mb-3">
-                                <label for="fecha" class="form-label">Fecha de nacimiento (aaaa-mm-dd)</label>
+                                <label for="fecha" class="form-label">Fecha de nacimiento </label>
                                 <input type="text" class="form-control" id="fecha" name="fecha" readonly />
                                 <div class="invalid-feedback">Formato de fecha incorrecto. Debe ser AAAA-MM-DD.</div>
                             </div>
@@ -235,6 +239,8 @@ endif; // Cerrar el bloque if del rol usuario
 
         if (rol !== 'admin') {
             $('#xyz').text('División: ' + divisionNombre);
+        } else {
+            $('#xyz').text('PERFIL SUPER    ADMINISTRADOR ');
         }
     });
     </script>
