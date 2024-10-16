@@ -155,7 +155,7 @@ endif; // Cerrar el bloque if del rol usuario
                             <!-- Fecha de nacimiento -->
                             <div class="col-md-5 mb-3">
                                 <label for="fecha" class="form-label">Fecha de nacimiento (aaaa-mm-dd)</label>
-                                <input type="text" class="form-control" id="fecha" name="fecha" required />
+                                <input type="text" class="form-control" id="fecha" name="fecha" readonly />
                                 <div class="invalid-feedback">Formato de fecha incorrecto. Debe ser AAAA-MM-DD.</div>
                             </div>
 
@@ -169,7 +169,7 @@ endif; // Cerrar el bloque if del rol usuario
                             <!-- Antigüedad -->
                             <div class="col-md-5 mb-3">
                                 <label for="antiguedad" class="form-label">Antigüedad (Fecha Ingreso)</label>
-                                <input type="text" class="form-control" id="antiguedad" name="antiguedad" />
+                                <input type="text" class="form-control" id="antiguedad" name="antiguedad" readonly />
                                 <div class="invalid-feedback">Formato de fecha incorrecto. Debe ser AAAA-MM-DD.</div>
                             </div>
                             <!-- División -->
@@ -228,9 +228,14 @@ endif; // Cerrar el bloque if del rol usuario
         var table;
         var rol =
             '<?php echo htmlspecialchars($rol, ENT_QUOTES, 'UTF-8'); ?>'; // Obtén el rol del usuario desde PHP
+        var divisionNombre =
+            '<?php echo htmlspecialchars($divisionNombre ?? "División desconocida", ENT_QUOTES, 'UTF-8'); ?>'; // Usar un valor por defecto
         iniciarDataTable(rol);
         console.log('Rol:', rol);
-        $('#xyz').text('División:' + '<?php echo $divisionNombre; ?>');
+
+        if (rol !== 'admin') {
+            $('#xyz').text('División: ' + divisionNombre);
+        }
     });
     </script>
     <script src="../js/inicio.js?v=<?php echo time(); ?>"></script>

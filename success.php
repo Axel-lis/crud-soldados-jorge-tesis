@@ -55,7 +55,7 @@ if (!isset($_SESSION['success_message'])) {
                             unset($_SESSION['success_message']);
                             ?>
                         </p>
-                        <a href="index.php" class="btn btn-primary mt-3">Volver al inicio</a>
+                        <a href="login.php" class="btn btn-primary mt-3">Volver al inicio</a>
                     </div>
                 </div>
             </div>

@@ -48,6 +48,7 @@ $(document).ready(function () {
       },
       dataType: 'json',
       success: function (response) {
+        console.log('Respuesta recibida:', response);
         // Manejar la respuesta
         if (response.success) {
           Swal.fire({

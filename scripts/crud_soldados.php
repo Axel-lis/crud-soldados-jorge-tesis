@@ -45,15 +45,14 @@ function actualizarRegistro($conexion, $data) {
         $apellido_nombre = isset($data['apellido_nombre']) ? $data['apellido_nombre'] : '';
         $grado = isset($data['grado']) ? $data['grado'] : '';
         $dni = isset($data['dni']) ? $data['dni'] : '';
-        $fecha = isset($data['fecha']) ? $data['fecha'] : '';
-        $antiguedad = isset($data['antiguedad']) ? $data['antiguedad'] : '';
+        // No se recibirán las fechas para la actualización
         $division = isset($data['division']) ? $data['division'] : '';
         $observaciones = isset($data['observaciones']) ? $data['observaciones'] : '';
 
-        // Consulta de actualización con PDO
+        // Consulta de actualización sin las fechas
         $sql = "UPDATE soldados 
                 SET apellido_nombre = :apellido_nombre, grado = :grado, dni = :dni, 
-                    fecha = :fecha, antiguedad = :antiguedad, division = :division, observaciones = :observaciones
+                    division = :division, observaciones = :observaciones
                 WHERE id = :id";
 
         try {
@@ -61,8 +60,7 @@ function actualizarRegistro($conexion, $data) {
             $stmt->bindParam(':apellido_nombre', $apellido_nombre);
             $stmt->bindParam(':grado', $grado);
             $stmt->bindParam(':dni', $dni);
-            $stmt->bindParam(':fecha', $fecha);
-            $stmt->bindParam(':antiguedad', $antiguedad);
+            // No se asignan parámetros para fecha y antigüedad
             $stmt->bindParam(':division', $division);
             $stmt->bindParam(':observaciones', $observaciones);
             $stmt->bindParam(':id', $id, PDO::PARAM_INT);
@@ -79,6 +77,7 @@ function actualizarRegistro($conexion, $data) {
         enviarRespuesta(false, 'ID no proporcionado.');
     }
 }
+
 
 // Función para eliminar un registro de la tabla 'soldados'
 function eliminarRegistro($conexion, $id) {

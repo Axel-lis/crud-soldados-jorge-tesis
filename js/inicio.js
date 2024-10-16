@@ -137,17 +137,20 @@ $('#btnEditar').on('click', function () {
   var id = $('#formEditar').data('id'); // Obtener el ID del registro
   console.log('ID:', id); // Para verificar que el ID esté presente
 
+  // Almacenar las fechas originales para no incluirlas en la actualización
+  var fechaNacimientoOriginal = $('#fecha').val(); // Fecha de nacimiento original
+  var antiguedadOriginal = $('#antiguedad').val(); // Fecha de antigüedad original
+  // Crear un objeto data sin las fechas
   var data = {
     id: id,
     apellido_nombre: $('#apellido_nombre').val(),
     grado: $('#grado').val(),
     dni: $('#dni').val(),
-    fecha: $('#fecha').val(),
-    antiguedad: $('#antiguedad').val(),
+    // No incluir fecha y antigüedad en la actualización
     division: $('#selectDivision').val(),
     observaciones: $('#observaciones').val(),
+    // Aquí puedes agregar campos adicionales si es necesario
   };
-
   console.log('Datos enviados:', data); // Verifica los datos enviados
 
   // Enviar la solicitud AJAX al archivo PHP
@@ -160,12 +163,12 @@ $('#btnEditar').on('click', function () {
     },
     success: function (response) {
       Swal.fire({
-        title: 'Se actualizó el regristro',
+        title: 'Se actualizó el registro',
         text: 'Se actualizó el registro de manera exitosa',
         icon: 'success',
         confirmButtonText: 'OK',
-      }),
-        console.log('Respuesta recibida:', response); // Para depurar la respuesta
+      });
+      console.log('Respuesta recibida:', response); // Para depurar la respuesta
       $('#modalEditar').modal('hide'); // Cerrar el modal
       iniciarDataTable(); // Refresca la tabla
       // Si el servidor responde con éxito

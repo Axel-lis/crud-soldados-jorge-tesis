@@ -8,8 +8,7 @@ include('scripts/conexion.php');
 // Verificar si se ha enviado el formulario
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
     // Recoger y sanitizar los datos del formulario
-    $nombre = htmlspecialchars(trim($_POST['nombre']));
-    $apellido = htmlspecialchars(trim($_POST['apellido']));
+    $nombre_apellido = htmlspecialchars(trim($_POST['nombre_apellido']));
     $dni = htmlspecialchars(trim($_POST['dni']));
     $fecha = htmlspecialchars(trim($_POST['fecha']));
     $grado = htmlspecialchars(trim($_POST['grado']));
@@ -17,48 +16,78 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $division = htmlspecialchars(trim($_POST['division']));
     $observaciones = htmlspecialchars(trim($_POST['observaciones']));
     $email = htmlspecialchars(trim($_POST['email']));
-    $password = password_hash(trim($_POST['password']), PASSWORD_DEFAULT); // Hashing the password
+    $password = password_hash(trim($_POST['password']), PASSWORD_DEFAULT); // Hash de la contraseña
 
     try {
-        // Verificar si el DNI ya está registrado
-        $query = "SELECT * FROM usuarios WHERE dni = :dni OR email = :email"; // Check both DNI and email
+        // Verificar si el DNI o email ya están registrados
+        $query = "SELECT * FROM usuarios WHERE dni = :dni OR email = :email";
         $stmt = $conexion->prepare($query);
         $stmt->bindParam(':dni', $dni);
-        $stmt->bindParam(':email', $email); // Bind email parameter
+        $stmt->bindParam(':email', $email);
         $stmt->execute();
 
         if ($stmt->rowCount() > 0) {
             $error_message = "El DNI o el email ya se encuentran registrados.";
         } else {
-            // Preparar la consulta para insertar el nuevo usuario
-            $query = "INSERT INTO usuarios (nombre, apellido, dni, fecha_nacimiento, grado, antiguedad, division, observaciones, email, password, rol) 
-            VALUES (:nombre, :apellido, :dni, :fecha, :grado, :antiguedad, :division, :observaciones, :email, :password, 'usuario')";
+            // Iniciar una transacción para asegurar ambas inserciones
+            $conexion->beginTransaction();
 
-            $stmt = $conexion->prepare($query);
-            $stmt->bindParam(':nombre', $nombre);
-            $stmt->bindParam(':apellido', $apellido);
-            $stmt->bindParam(':dni', $dni);
-            $stmt->bindParam(':fecha', $fecha);
-            $stmt->bindParam(':grado', $grado);
-            $stmt->bindParam(':antiguedad', $antiguedad);
-            $stmt->bindParam(':division', $division);
-            $stmt->bindParam(':observaciones', $observaciones);
-            $stmt->bindParam(':email', $email);
-            $stmt->bindParam(':password', $password); // Bind password parameter
+            // Insertar nuevo usuario
+            $queryUsuario = "INSERT INTO usuarios (nombre_apellido, dni, fecha_nacimiento, grado, antiguedad, division, observaciones, email, password, rol) 
+            VALUES (:nombre_apellido, :dni, :fecha, :grado, :antiguedad, :division, :observaciones, :email, :password, 'usuario')";
 
-            if ($stmt->execute()) {
-                $_SESSION['success_message'] = "Usuario registrado exitosamente.";
-                header("Location: success.php");
-                exit();
+            $stmtUsuario = $conexion->prepare($queryUsuario);
+            $stmtUsuario->bindParam(':nombre_apellido', $nombre_apellido);
+            $stmtUsuario->bindParam(':dni', $dni);
+            $stmtUsuario->bindParam(':fecha', $fecha);
+            $stmtUsuario->bindParam(':grado', $grado);
+            $stmtUsuario->bindParam(':antiguedad', $antiguedad);
+            $stmtUsuario->bindParam(':division', $division);
+            $stmtUsuario->bindParam(':observaciones', $observaciones);
+            $stmtUsuario->bindParam(':email', $email);
+            $stmtUsuario->bindParam(':password', $password);
+
+            if ($stmtUsuario->execute()) {
+                // Obtener el ID del usuario recién creado
+                $usuario_id = $conexion->lastInsertId();
+
+                // Insertar nuevo soldado asociado al usuario
+                $querySoldado = "INSERT INTO soldados (apellido_nombre, grado, dni, fecha, antiguedad, observaciones, division, usuario_id) 
+                VALUES (:apellido_nombre, :grado, :dni, :fecha, :antiguedad, :observaciones, :division, :usuario_id)";
+
+                $stmtSoldado = $conexion->prepare($querySoldado);
+                $stmtSoldado->bindParam(':apellido_nombre', $nombre_apellido);
+                $stmtSoldado->bindParam(':grado', $grado);
+                $stmtSoldado->bindParam(':dni', $dni);
+                $stmtSoldado->bindParam(':fecha', $fecha);
+                $stmtSoldado->bindParam(':antiguedad', $antiguedad);
+                $stmtSoldado->bindParam(':observaciones', $observaciones);
+                $stmtSoldado->bindParam(':division', $division);
+                $stmtSoldado->bindParam(':usuario_id', $usuario_id);
+
+                if ($stmtSoldado->execute()) {
+                    // Confirmar la transacción
+                    $conexion->commit();
+                    $_SESSION['success_message'] = "Usuario y soldado registrados exitosamente.";
+                    header("Location: success.php");
+                    exit();
+                } else {
+                    // Revertir transacción si falla la inserción del soldado
+                    $conexion->rollBack();
+                    $error_message = "Error al registrar el soldado.";
+                }
             } else {
+                $conexion->rollBack();
                 $error_message = "Error al registrar el usuario.";
             }
         }
     } catch (PDOException $e) {
+        $conexion->rollBack(); // Revertir cambios en caso de error
         $error_message = "Error: " . $e->getMessage();
     }
 }
 ?>
+
 <!DOCTYPE html>
 <html lang="es">
 
@@ -118,12 +147,9 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                     <div class="card-body">
                         <form id="formRegistrar" class="form" action="registrar.php" method="POST">
                             <div class="mb-3">
-                                <label for="nombre" class="form-label">Nombre</label>
-                                <input type="text" class="form-control" id="nombre" name="nombre" required />
-                            </div>
-                            <div class="mb-3">
-                                <label for="apellido" class="form-label">Apellido</label>
-                                <input type="text" class="form-control" id="apellido" name="apellido" required />
+                                <label for="nombre" class="form-label">Nombre y Apellido</label>
+                                <input type="text" class="form-control" id="nombre_apellido" name="nombre_apellido"
+                                    required />
                             </div>
                             <div class="mb-3">
                                 <label for="dni" class="form-label">DNI</label>
