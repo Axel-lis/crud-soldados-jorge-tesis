@@ -28,6 +28,21 @@ if (isset($_POST['accion'])) {
         case 'CREAR_REGISTRO':
             crearRegistro($conexion, $_POST['data']);
             break;
+        case 'VERIFICAR_DNI':
+            $dni = $_POST['dni'];
+            $id = isset($_POST['id']) ? $_POST['id'] : null; // Asignar null si el ID no está presente
+
+            // Consulta para verificar si el DNI existe y no pertenece al ID actual
+            $query = "SELECT COUNT(*) as existe FROM soldados WHERE dni = :dni AND id != :id";
+            $stmt = $conexion->prepare($query);
+            $stmt->bindParam(':dni', $dni);
+            $stmt->bindParam(':id', $id, PDO::PARAM_INT);
+            $stmt->execute();
+            $result = $stmt->fetch(PDO::FETCH_ASSOC);
+
+            // Enviar respuesta con el valor de 'existe'
+            echo json_encode(['existe' => $result['existe'] > 0]);
+            break;
 
         default:
             enviarRespuesta(false, 'Acción no válida.');
@@ -45,13 +60,18 @@ function actualizarRegistro($conexion, $data) {
         $apellido_nombre = isset($data['apellido_nombre']) ? $data['apellido_nombre'] : '';
         $grado = isset($data['grado']) ? $data['grado'] : '';
         $dni = isset($data['dni']) ? $data['dni'] : '';
-        // No se recibirán las fechas para la actualización
+        $fecha = isset($data['fecha']) ? $data['fecha'] : '';
+        $antiguedad = isset($data['antiguedad']) ? $data['antiguedad'] : '';
         $division = isset($data['division']) ? $data['division'] : '';
         $observaciones = isset($data['observaciones']) ? $data['observaciones'] : '';
 
-        // Consulta de actualización sin las fechas
+        // Convertir las fechas al formato adecuado
+        $fecha = convertirFecha($fecha);
+        $antiguedad = convertirFecha($antiguedad);
+
+        // Consulta de actualización
         $sql = "UPDATE soldados 
-                SET apellido_nombre = :apellido_nombre, grado = :grado, dni = :dni, 
+                SET apellido_nombre = :apellido_nombre, grado = :grado, dni = :dni, fecha = :fecha, antiguedad = :antiguedad, 
                     division = :division, observaciones = :observaciones
                 WHERE id = :id";
 
@@ -60,7 +80,8 @@ function actualizarRegistro($conexion, $data) {
             $stmt->bindParam(':apellido_nombre', $apellido_nombre);
             $stmt->bindParam(':grado', $grado);
             $stmt->bindParam(':dni', $dni);
-            // No se asignan parámetros para fecha y antigüedad
+            $stmt->bindParam(':fecha', $fecha);
+            $stmt->bindParam(':antiguedad', $antiguedad);
             $stmt->bindParam(':division', $division);
             $stmt->bindParam(':observaciones', $observaciones);
             $stmt->bindParam(':id', $id, PDO::PARAM_INT);
@@ -77,6 +98,24 @@ function actualizarRegistro($conexion, $data) {
         enviarRespuesta(false, 'ID no proporcionado.');
     }
 }
+
+function convertirFecha($fecha) {
+    // Verificar si la fecha no está vacía
+    if (!empty($fecha)) {
+        // Crear un objeto DateTime desde la fecha en formato dd/mm/aaaa
+        $dateTime = DateTime::createFromFormat('d/m/Y', $fecha);
+        // Verificar si la conversión fue exitosa
+        if ($dateTime) {
+            // Retornar la fecha en formato aaaa-mm-dd
+            return $dateTime->format('Y-m-d');
+        } else {
+            // Manejo de error si la fecha no es válida
+            return '0000-00-00'; // o lanzar un error
+        }
+    }
+    return null; // Si la fecha está vacía
+}
+
 
 
 // Función para eliminar un registro de la tabla 'soldados'
@@ -111,6 +150,17 @@ function crearRegistro($conexion, $data) {
     $division = isset($data['division']) ? $data['division'] : '';
     $observaciones = isset($data['observaciones']) ? $data['observaciones'] : '';
 
+    // Primero, verificar si el DNI ya existe en la base de datos
+    $sql_check_dni = "SELECT COUNT(*) as existe FROM soldados WHERE dni = :dni";
+    $stmt_check = $conexion->prepare($sql_check_dni);
+    $stmt_check->bindParam(':dni', $dni, PDO::PARAM_INT);
+    $stmt_check->execute();
+    $result = $stmt_check->fetch(PDO::FETCH_ASSOC);
+
+    if ($result['existe'] > 0) {
+        enviarRespuesta(false, 'El DNI ya existe en la base de datos.');
+    }
+
     // Consulta de inserción con PDO (incluyendo 'division')
     $sql = "INSERT INTO soldados (apellido_nombre, grado, dni, fecha, antiguedad, division, observaciones) 
             VALUES (:apellido_nombre, :grado, :dni, :fecha, :antiguedad, :division, :observaciones)";
@@ -122,7 +172,7 @@ function crearRegistro($conexion, $data) {
         $stmt->bindParam(':dni', $dni);
         $stmt->bindParam(':fecha', $fecha);
         $stmt->bindParam(':antiguedad', $antiguedad);
-        $stmt->bindParam(':division', $division);  // Agregar este bindParam
+        $stmt->bindParam(':division', $division);
         $stmt->bindParam(':observaciones', $observaciones);
 
         if ($stmt->execute()) {
@@ -134,5 +184,6 @@ function crearRegistro($conexion, $data) {
         enviarRespuesta(false, 'Error en la base de datos: ' . $e->getMessage());
     }
 }
+
 
 ?>

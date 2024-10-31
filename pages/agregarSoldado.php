@@ -73,12 +73,14 @@ if (!isset($_SESSION['usuario_id'])) {
 
             <div class="text-bold">
                 <label for="dni" class="form-label">DNI</label>
-                <input type="number" class="form-control" id="dni" required />
+                <input type="number" class="form-control" id="dni" required max="99999999" />
             </div>
+
             <div class="text-bold">
                 <label for="fecha" class="form-label">Fecha nacimiento</label>
                 <input type="date" class="form-control" id="fecha" required />
             </div>
+
             <!-- Antigüedad -->
             <div class="text-bold">
                 <label for="antiguedad" class="form-label">Antigüedad (Fecha Ingreso)</label>
@@ -102,7 +104,7 @@ if (!isset($_SESSION['usuario_id'])) {
         </form>
     </div>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-    <script src="../js/agregarSoldado.js?v=1.2"></script>
+    <script src="../js/agregarSoldado.js?v=1.3.3"></script>
 </body>
 
 

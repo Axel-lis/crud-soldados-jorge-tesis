@@ -106,8 +106,8 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                         <input type="password" name="password" class="form-control" required />
                     </div>
                     <button type="submit" class="btn btn-primary w-100">Iniciar Sesión</button>
-                    <button type="button" class="btn btn-secondary w-100 mt-3" id="btnRegistrar">Registrar
-                        Soldado</button>
+                    <!-- <button type="button" class="btn btn-secondary w-100 mt-3" id="btnRegistrar">Registrar
+                        Soldado</button> -->
                 </form>
             </div>
         </div>
@@ -137,9 +137,9 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         $('#errorModal').modal('show');
         <?php endif; ?>
     });
-    $('#btnRegistrar').on('click', function() {
-        window.location.href = 'registrar.php';
-    });
+    /*   $('#btnRegistrar').on('click', function() {
+           window.location.href = 'registrar.php';
+       }); */
     </script>
 
 </body>

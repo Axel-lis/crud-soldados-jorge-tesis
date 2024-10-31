@@ -112,6 +112,7 @@ endif; // Cerrar el bloque if del rol usuario
                     <th>FECHA DE NACIMIENTO</th>
                     <th>ANTIGUEDAD</th>
                     <th>OBSERVACIONES</th>
+                    <th></th>
                     <th>ACCION</th>
                 </tr>
             </thead>
@@ -153,16 +154,14 @@ endif; // Cerrar el bloque if del rol usuario
                             <!-- DNI  -->
                             <div class="col-md-5 mb-3">
                                 <label for="dni" class="form-label">DNI</label>
-                                <input type="text" class="form-control" id="dni" name="dni" />
+                                <input type="number" class="form-control" id="dni" required max="99999999" />
                             </div>
-
                             <!-- Fecha de nacimiento -->
                             <div class="col-md-5 mb-3">
                                 <label for="fecha" class="form-label">Fecha de nacimiento </label>
-                                <input type="text" class="form-control" id="fecha" name="fecha" readonly />
+                                <input type="text" class="form-control" id="fecha" name="fecha" />
                                 <div class="invalid-feedback">Formato de fecha incorrecto. Debe ser AAAA-MM-DD.</div>
                             </div>
-
                             <!-- Edad -->
                             <div class="col-md-2 mb-3">
                                 <label for="edad" class="form-label">Edad (años)</label>
@@ -173,8 +172,9 @@ endif; // Cerrar el bloque if del rol usuario
                             <!-- Antigüedad -->
                             <div class="col-md-5 mb-3">
                                 <label for="antiguedad" class="form-label">Antigüedad (Fecha Ingreso)</label>
-                                <input type="text" class="form-control" id="antiguedad" name="antiguedad" readonly />
-                                <div class="invalid-feedback">Formato de fecha incorrecto. Debe ser AAAA-MM-DD.</div>
+                                <input type="text" class="form-control" id="antiguedad" name="antiguedad" />
+                                <div class="invalid-feedback">Formato de fecha incorrecto. Debe ser AAAA-MM-DD.
+                                </div>
                             </div>
                             <!-- División -->
                             <div class="col-md-5 mb-3">

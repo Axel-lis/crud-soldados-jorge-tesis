@@ -27,6 +27,29 @@ function iniciarDataTable(rol) {
       { data: 'dni', title: 'DNI' },
       { data: 'fecha', title: 'NACIMIENTO' },
       { data: 'antiguedad', title: 'INGRESO' },
+      {
+        // Nueva columna de antigüedad
+        title: 'ANTIGÜEDAD',
+        data: 'antiguedad',
+        render: function (data, type, row) {
+          // Calcular la antigüedad dinámica a partir de la fecha de ingreso
+          var fechaActual = new Date();
+          var fechaAntiguedad = new Date(data.split('/').reverse().join('-')); // Convertir a YYYY-MM-DD
+          var antiguedad = fechaActual.getFullYear() - fechaAntiguedad.getFullYear();
+          var mesActual = fechaActual.getMonth();
+          var mesIngreso = fechaAntiguedad.getMonth();
+
+          // Ajustar la antigüedad si la fecha de ingreso no ha ocurrido aún este año
+          if (
+            mesIngreso > mesActual ||
+            (mesIngreso === mesActual && fechaAntiguedad.getDate() > fechaActual.getDate())
+          ) {
+            antiguedad--;
+          }
+
+          return antiguedad + ' años';
+        },
+      },
       { data: 'observaciones', title: 'OBSERVACIONES' },
       { data: 'division', title: 'DIVISIÓN' },
       {
@@ -71,7 +94,7 @@ function iniciarDataTable(rol) {
 
   // Ocultar la columna de acciones si el rol es 'usuario'
   if (rol === 'usuario') {
-    table.column(7).visible(false); // Índice 7 corresponde a la columna de acciones
+    table.column(8).visible(false); // Índice 8 corresponde a la columna de acciones
   }
 }
 
@@ -89,7 +112,7 @@ $('#miTabla tbody').on('click', 'button[data-bs-target="#modalEditar"]', functio
   $('#grado').val(registro.grado);
   $('#dni').val(registro.dni);
   $('#fecha').val(registro.fecha); // Esta es la fecha de nacimiento
-  $('#antiguedad').val(registro.antiguedad); // Esta es la fecha de ingreso
+  $('#antiguedad').val(registro.antiguedad); // Esta es la fecha de ingreso al ejercito
   $('#observaciones').val(registro.observaciones);
   $('#selectDivision').val(registro.division);
 
@@ -137,23 +160,103 @@ $('#btnEditar').on('click', function () {
   var id = $('#formEditar').data('id'); // Obtener el ID del registro
   console.log('ID:', id); // Para verificar que el ID esté presente
 
-  // Almacenar las fechas originales para no incluirlas en la actualización
-  var fechaNacimientoOriginal = $('#fecha').val(); // Fecha de nacimiento original
-  var antiguedadOriginal = $('#antiguedad').val(); // Fecha de antigüedad original
+  var dni = $('#dni').val();
+  var fecha = $('#fecha').val();
+  var antiguedad = $('#antiguedad').val();
+
+  // Obtener la fecha actual
+  var hoy = new Date();
+  var anioActual = hoy.getFullYear();
+  hoy.setHours(0, 0, 0, 0); // Ajustar la hora para comparar solo la fecha
+
+  // Verificar que el DNI tenga máximo 8 dígitos
+  if (dni.length > 8) {
+    Swal.fire({
+      title: 'Error!',
+      text: 'El DNI no puede tener más de 8 dígitos.',
+      icon: 'warning',
+      confirmButtonText: 'OK',
+    });
+    return; // Detener la ejecución si el DNI es inválido
+  }
+
+  // Validar la fecha de nacimiento
+  var fechaNacimiento = new Date(fecha.split('/').reverse().join('-')); // Convertir a formato yyyy-mm-dd
+  if (fechaNacimiento >= new Date(anioActual, 0, 1)) {
+    Swal.fire({
+      title: 'Error!',
+      text: 'La fecha de nacimiento debe ser anterior al año actual.',
+      icon: 'warning',
+      confirmButtonText: 'OK',
+    });
+    return; // Detener la ejecución si la fecha es inválida
+  }
+
+  // Validar la antigüedad
+  var fechaAntiguedad = new Date(antiguedad.split('/').reverse().join('-')); // Convertir a formato yyyy-mm-dd
+  if (fechaAntiguedad >= hoy) {
+    Swal.fire({
+      title: 'Error!',
+      text: 'La fecha de antigüedad no puede ser mayor o igual a la fecha actual.',
+      icon: 'warning',
+      confirmButtonText: 'OK',
+    });
+    return; // Detener la ejecución si la fecha es inválida
+  }
+
+  // Verificar si el DNI ya está en uso en la base de datos
+  $.ajax({
+    type: 'POST',
+    url: '../scripts/crud_soldados.php',
+    data: {
+      accion: 'VERIFICAR_DNI',
+      dni: dni,
+      id: id, // Enviar el ID para excluir el registro actual de la verificación
+    },
+    success: function (response) {
+      response = typeof response === 'string' ? JSON.parse(response) : response; // Asegurarse de que es un objeto
+
+      if (response.existe) {
+        Swal.fire({
+          title: 'DNI en uso',
+          text: 'Este DNI ya está registrado en la base de datos.',
+          icon: 'error',
+          confirmButtonText: 'OK',
+        });
+      } else {
+        // Continuar con la actualización si el DNI no está en uso
+        actualizarRegistro(id);
+      }
+    },
+
+    error: function (xhr, status, error) {
+      Swal.fire({
+        title: 'Error!',
+        text: 'Error en la conexión: ' + error,
+        icon: 'error',
+        confirmButtonText: 'OK',
+      });
+    },
+  });
+});
+
+// Función para actualizar el registro después de verificar el DNI
+function actualizarRegistro(id) {
   // Crear un objeto data sin las fechas
   var data = {
     id: id,
     apellido_nombre: $('#apellido_nombre').val(),
     grado: $('#grado').val(),
     dni: $('#dni').val(),
-    // No incluir fecha y antigüedad en la actualización
+    fecha: $('#fecha').val(),
+    antiguedad: $('#antiguedad').val(),
     division: $('#modalEditar #selectDivision').val(),
     observaciones: $('#observaciones').val(),
   };
-  console.log(data.division);
+
   console.log('Datos enviados:', data); // Verifica los datos enviados
 
-  // Enviar la solicitud AJAX al archivo PHP
+  // Enviar la solicitud AJAX al archivo PHP para actualizar
   $.ajax({
     type: 'POST',
     url: '../scripts/crud_soldados.php',
@@ -171,7 +274,6 @@ $('#btnEditar').on('click', function () {
       console.log('Respuesta recibida:', response); // Para depurar la respuesta
       $('#modalEditar').modal('hide'); // Cerrar el modal
       iniciarDataTable(); // Refresca la tabla
-      // Si el servidor responde con éxito
     },
     error: function (xhr, status, error) {
       Swal.fire({
@@ -182,7 +284,8 @@ $('#btnEditar').on('click', function () {
       });
     },
   });
-});
+}
+
 // Evento para el botón "Eliminar"
 $('#miTabla tbody').on('click', 'button[data-bs-target="#modalEliminar"]', function () {
   var registro = $(this).attr('data-registro');
