@@ -342,10 +342,10 @@ $('#btnEliminar').on('click', function () {
 $('#selectDivision').on('change', function () {
   var division = $(this).val(); // Obtener el valor seleccionado
   if (division) {
-    // Si se selecciona una división, aplicar el filtro en la columna 'DIVISION' (índice 6)
-    table.column(6).search(division).draw();
+    console.log('Valor de división seleccionado:', division);
+    table.column(7).search(division).draw();
+    console.log('Filtrado por división:', division);
   } else {
-    // Si no se selecciona ninguna división, restablecer el filtro
-    table.column(6).search('').draw();
+    table.column(7).search('').draw();
   }
 });

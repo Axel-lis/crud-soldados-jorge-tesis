@@ -112,7 +112,7 @@ endif; // Cerrar el bloque if del rol usuario
                     <th>FECHA DE NACIMIENTO</th>
                     <th>ANTIGUEDAD</th>
                     <th>OBSERVACIONES</th>
-                    <th></th>
+                    <th>DIVISION</th>
                     <th>ACCION</th>
                 </tr>
             </thead>
